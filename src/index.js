@@ -2,8 +2,9 @@
 /*jshint strict:false */
 'use strict';
 
-function LOG_ERROR(m) {
+function ERR(m) {
   console.log('[ERROR] ' + m);
+  return m;
 }
 
 module.exports = (function() {
@@ -14,8 +15,7 @@ module.exports = (function() {
   moat.Runtime = function() {};
   moat.Runtime.singleton = function() {
     if (!moatRuntime) {
-      LOG_ERROR('Not yet configured.');
-      throw 'Not yet configured.';
+      throw ERR('Not yet configured.');
     }
     return moatRuntime;
   };
@@ -33,7 +33,7 @@ module.exports = (function() {
   // spi classes
   moat.spi.Config = function() {
     if (!(this instanceof moat.spi.Config)) {
-      throw 'This is not a function.';
+      throw ERR('This is not a function.');
     }
     var self = this;
     self.runtime = {
@@ -43,7 +43,7 @@ module.exports = (function() {
     Object.seal(self.runtime);
     self.done = function() {
       if (Object.isFrozen(moat.Runtime)) {
-        LOG_ERROR('Sorry, already configured.');
+        ERR('Sorry, already configured.');
         return false;
       }
       moat.Runtime.prototype = self.runtime;

@@ -5,7 +5,7 @@ var expect = chai.expect;
 var should = chai.should();
 
 // application specific dependencies
-var moat = require('../lib/index.js');
+var moat = require('../src/index.js');
 
 describe('moat', function() {
   it('should be an object rather than a function.', function() {
