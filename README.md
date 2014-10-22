@@ -3,6 +3,8 @@ npm-moat
 
 moat npm package version 2.
 
+Visit [here](https://github.com/inventit/npm-moat/wiki) for further information.
+
 ## Released Version
 
 Not yet released.
@@ -17,18 +19,7 @@ Not yet released.
 
 [![master Build Status](https://travis-ci.org/inventit/npm-moat.svg?branch=master)](https://travis-ci.org/inventit/npm-moat/)
 
-## Setting up development environment
-```
-$ git clone https://github.com/inventit/npm-moat.git
-$ cd npm-moat
-$ git checkout develop
-$ npm update -g npm
-$ npm install -g grunt-cli
-$ npm install -g mocha
-$ npm install --save-dev
-```
 
-## History
+## License
 
-* October 22, 2014
-  * Create a repository on GitHub
+[MIT](https://github.com/inventit/npm-moat/blob/master/LICENSE)

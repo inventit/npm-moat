@@ -6,3 +6,6 @@ test/
 .DS_Store
 .travis.yml
 Gruntfile.js
+.npmignore
+*.tgz
+LICENSE
