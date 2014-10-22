@@ -1,0 +1,33 @@
+{
+  "author": {
+    "name": "Daisuke Baba"
+  , "email": "dbaba@yourinventit.com"
+  ,  "url": "http://dev.inventit.io"
+  }
+, "version": "2.0.0"
+, "homepage" : "https://github.com/inventit/npm-moat"
+, "description": "MOAT js Runtime Library"
+, "main": "./lib/index.js"
+, "name": "moat"
+, "repository": {
+    "type": "git"
+  , "url": "git://github.com/inventit/npm-moat.git"
+  }
+, "bugs": {
+    "url": "https://github.com/inventit/npm-moat/issues"
+  }
+, "devDependencies": {
+    "mocha": "*"
+  , "chai": "*"
+  , "sinon": ">= 1.5.2"
+  , "grunt": "~0.4.5"
+  , "grunt-mocha-chai-sinon": "~0.0.8"
+  , "grunt-contrib-jshint": "~0.10.0"
+  , "grunt-mocha-chai-sinon": "~0.0.8"
+  }
+, "engines" : {
+    "node" : ">=0.10.0 <0.11"
+  , "moat-runtime" : ">=2.0.0 <3.0.0"
+  }
+, "license" : "MIT"
+}
