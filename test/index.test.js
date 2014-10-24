@@ -148,6 +148,8 @@ describe('moat.spi.Config', function() {
       should.not.exist(config.runtime.foo);
       config.runtime.version = 'yay!';
       config.runtime.version.should.equal('yay!');
+      config.runtime.server = true;
+      config.runtime.server.should.equal(true);
       config.runtime.engine = 'servicesync';
       config.runtime.engine.should.equal('servicesync');
     });
@@ -341,11 +343,12 @@ describe('moat(initialized)', function() {
         });
         describe('#downloadToLocal', function() {
           it('should be overridden.', function() {
-            var obj = new mypackage.FirstLargeObject();
-            should.exist(obj.downloadToLocal);
-            obj.downloadToLocal = function(params, callback) {
+            should.exist(mypackage.FirstLargeObject.prototype.downloadToLocal);
+            mypackage.FirstLargeObject.prototype.downloadToLocal = function(params, callback) {
               return 'ok';
             };
+            var obj = new mypackage.FirstLargeObject();
+            should.exist(obj.downloadToLocal);
             obj.downloadToLocal().should.equal('ok');
           });
         });

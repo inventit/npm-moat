@@ -58,6 +58,15 @@ module.exports = (function() {
   moat.Runtime.s = moat.Runtime.singleton;
   moat.Runtime.prototype = {
     /**
+     * Whether or not the runtime is server-side.
+     * 
+     * @instance
+     * @memberof moat.Runtime
+     * @type {boolean}
+     */
+    server: false,
+
+    /**
      * The name of the engine.
      * 
      * @instance
