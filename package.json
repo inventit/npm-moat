@@ -25,6 +25,7 @@
   , "grunt-contrib-jshint": "~0.10.0"
   , "grunt-contrib-uglify": "~0.6.0"
   , "grunt-mocha-chai-sinon": "~0.0.8"
+  , "grunt-jsdoc": "~0.5.7"
   }
 , "engines" : {
     "node" : ">=0.10.0 <0.11"

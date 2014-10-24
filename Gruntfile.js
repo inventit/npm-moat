@@ -36,8 +36,16 @@ module.exports = function(grunt) {
           ui: 'bdd',
           reporter: 'html-cov',
           quiet: true,
-          filter: '/npm-moat/lib/',
+          filter: '/npm-moat/src/',
           captureFile: './docs/coverage.html'
+        }
+      }
+    },
+    jsdoc: {
+      dist: {
+        src: ['src/**/*.js', 'test/**/*.js'],
+        options: {
+          destination: 'docs/jsdoc'
         }
       }
     }
@@ -46,5 +54,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-mocha-chai-sinon");
-  grunt.registerTask('default', ['jshint', 'mocha-chai-sinon', 'uglify']);
+  grunt.loadNpmTasks('grunt-jsdoc');
+
+  grunt.registerTask('build', ['jshint', 'mocha-chai-sinon', 'uglify']);
+  grunt.registerTask('default', ['build', 'jsdoc']);
 };
