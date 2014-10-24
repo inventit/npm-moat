@@ -129,6 +129,17 @@ describe('moat.spi.Config', function() {
       var config = new moat.spi.Config();
       should.exist(config.runtime);
     });
+    it('should be sealed and frozen.', function() {
+      Object.isSealed(moat.spi.Config).should.equal(true);
+      Object.isFrozen(moat.spi.Config).should.equal(true);
+    });
+  });
+  describe('instance', function() {
+    it('should be sealed and frozen.', function() {
+      var obj = new moat.spi.Config();
+      Object.isSealed(obj).should.equal(true);
+      Object.isFrozen(obj).should.equal(true);
+    });
   });
   describe('runtime', function() {
     it('should be sealed so that users cannot add/remove but edit properties.', function() {
@@ -146,10 +157,10 @@ describe('moat.spi.Config', function() {
       var config = new moat.spi.Config();
       config.runtime.version = '1.0.0';
       config.runtime.engine = 'servicesync';
-      config.serverContext.httpSync = function(options) {
+      config.serverContextProto.httpSync = function(options) {
         return 'OK! I was overwritten.';
       };
-      config.serverContext.findPackage = function(object) {
+      config.serverContextProto.findPackage = function(object) {
         return 'OK! I was overwritten.';
       };
       config.done().should.equal(true);
@@ -235,7 +246,7 @@ describe('moat.Runtime(initialized)', function() {
       }).should.throw('This is not a function.');
     });
   });
-  describe('#singleton', function() {
+  describe('.singleton', function() {
     it('should return a Runtime singleton instance after moat.spi.Config#done() is invoked.', function() {
       moat.Runtime.singleton().should.be.a('object');
       moat.Runtime.singleton().should.be.an.instanceOf(moat.Runtime);
@@ -244,7 +255,7 @@ describe('moat.Runtime(initialized)', function() {
 });
 
 describe('moat(initialized)', function() {
-  describe('#init', function() {
+  describe('.init', function() {
     it('should not accept an empty string and a path as a packageId.', function() {
       (function () {
         moat.init();
@@ -278,7 +289,7 @@ describe('moat(initialized)', function() {
         Object.isSealed(mypackage.FirstLargeObject).should.equal(true);
         Object.isFrozen(mypackage.FirstLargeObject).should.equal(false);
       });
-      describe('FirstLargeObject', function() {
+      describe('.FirstLargeObject', function() {
         it('should have mapper functions as class methods.', function() {
           var FirstLargeObject = mypackage.FirstLargeObject;
           FirstLargeObject.should.have.a.property('add');
@@ -321,7 +332,7 @@ describe('moat(initialized)', function() {
             obj.collectBinary.should.be.a('function');
           });
         });
-        describe('name', function() {
+        describe('#name', function() {
           it('should be modified.', function() {
             var obj = new mypackage.FirstLargeObject();
             obj.name = 'myname';
@@ -339,7 +350,7 @@ describe('moat(initialized)', function() {
           });
         });
       });
-      describe('SecondLargeObject', function() {
+      describe('.SecondLargeObject', function() {
         describe('instance', function() {
           it('should be sealed but NOT frozen.', function() {
             var obj = new mypackage.SecondLargeObject();

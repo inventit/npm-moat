@@ -18,6 +18,7 @@ function notConf() {
 }
 
 /**
+ * 
  * @namespace
  */
 var moat = {};
@@ -29,6 +30,9 @@ module.exports = (function() {
       pmStore = {};         // persistence module store
 
   /**
+   * Representing the currently running environment information.
+   * This class is a singleton, users shouldn't instantiate it.
+   * 
    * @class
    */
   moat.Runtime = function() {
@@ -37,6 +41,7 @@ module.exports = (function() {
   };
 
   /**
+   * 
    * @returns {moat.Runtime} A singleton object.
    */
   moat.Runtime.singleton = function() {
@@ -46,15 +51,35 @@ module.exports = (function() {
 
   /**
    * Short name alias for moat.Runtime.singleton() function.
+   * 
+   * @function
+   * @returns {moat.Runtime} A singleton object.
    */
   moat.Runtime.s = moat.Runtime.singleton;
   moat.Runtime.prototype = {
-    version: '',
-    engine: ''
+    /**
+     * The name of the engine.
+     * 
+     * @instance
+     * @memberof moat.Runtime
+     * @type {string}
+     */
+    engine: '',
+
+    /**
+     * The version of the engine.
+     * 
+     * @instance
+     * @memberof moat.Runtime
+     * @type {string}
+     */
+    version: ''
   };
   Object.freeze(moat.Runtime);
 
   /**
+   * The base class of the running context.
+   * 
    * @class
    */
   moat.Context = function() {
@@ -63,6 +88,10 @@ module.exports = (function() {
   Object.freeze(moat.Context);
 
   /**
+   * The server-side running context.
+   * Users shouldn't instantiate it directly as the runtime environment is responsible for providing the instance.
+   * 
+   * @extends moat.Context
    * @class
    */
   moat.ServerContext = function() {
@@ -70,16 +99,57 @@ module.exports = (function() {
     Object.seal(this);
   };
   serverContext = new moat.Context();
+  /**
+   * 
+   * @instance
+   * @memberof moat.ServerContext
+   * @type {object}
+   * @name dmjob
+   */
   serverContext.dmjob = null;
+  /**
+   * 
+   * @instance
+   * @memberof moat.ServerContext
+   * @type {array|object}
+   * @name modelObjects
+   */
   serverContext.modelObjects = null;
+  /**
+   * 
+   * @instance
+   * @memberof moat.ServerContext
+   * @type {object}
+   * @name database
+   */
   serverContext.database = null;
+  /**
+   * 
+   * @instance
+   * @memberof moat.ServerContext
+   * @abstract
+   * @function
+   * @name httpSync
+   * @param {object} opts HTTP request options.
+   */
   serverContext.httpSync = notConf;
+  /**
+   * 
+   * @instance
+   * @memberof moat.ServerContext
+   * @abstract
+   * @function
+   * @name findPackage
+   * @param {string} packageId The package ID to be identified.
+   */
   serverContext.findPackage = notConf;
   Object.seal(serverContext);
   moat.ServerContext.prototype = serverContext;
   Object.freeze(moat.ServerContext);
 
   /**
+   * Initializing the application package identified by the given packageId.
+   * 
    * @param {string} packageId of the application to be started.
    * @returns {object} A namespace object of the application package.
    */
@@ -171,7 +241,10 @@ module.exports = (function() {
 
   /**
    * Short name alias for init() function.
-   * @alias moat.init
+   * 
+   * @function
+   * @param {string} packageId of the application to be started.
+   * @returns {object} A namespace object of the application package.
    */
   moat.i = moat.init;
 
@@ -202,7 +275,10 @@ module.exports = (function() {
 
   /**
    * Short name alias for persistence() function.
-   * @alias moat.persistence
+   * 
+   * @function
+   * @param {string} library The persistence library name to be initialized.
+   * @param {object} opts An object containing initializing parameters
    */
   moat.p = moat.persistence;
 
@@ -211,6 +287,8 @@ module.exports = (function() {
    * This function seals the given modelClass object.
    * This function freezes the given modelClass object as well unless 'internal' is false.
    * 
+   * @inner
+   * @memberof moat
    * @param {object} modelClass A model class object.
    * @param {string} library The persistence library name to be initialized.
    * @param {boolean} internal Whether or not the caller is internal stuff of this module.
@@ -261,11 +339,17 @@ module.exports = (function() {
 
   /**
    * Short name alias for configure() function.
-   * @alias moat.configure
+     * 
+   * @function
+   * @param {object} modelClass A model class object.
+   * @param {string} library The persistence library name to be initialized.
+   * @returns {object} The moat namespace object.
    */
   moat.c = moat.configure;
 
   /**
+   * This namespace is for objects providing Service Provider Interfaces.
+   * User applications don't have to use them.
    * @namespace
    */
   moat.spi = {};
@@ -279,9 +363,34 @@ module.exports = (function() {
     var self = this;
     var Runtime = moat.Runtime;
     var runtimeProto = Runtime.prototype;
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.spi.Config
+     * @type {moat.Runtime}
+     * @name runtime
+     */
     self.runtime = runtimeProto;
-    self.serverContext = moat.ServerContext.prototype;
+    /**
+     * The prototype of the {@link moat.ServiceContext}.
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.spi.Config
+     * @type {moat.Context}
+     * @name serverContextProto
+     */
+    self.serverContextProto = moat.ServerContext.prototype;
     Object.seal(self.runtime);
+    /**
+     * 
+     * @instance
+     * @memberof moat.spi.Config
+     * @function
+     * @name done
+     * @returns {boolean} false when the configuration is already performed.
+     */
     self.done = function() {
       if (Object.isFrozen(runtimeProto)) {
         ERR('Sorry, already configured.');
@@ -292,6 +401,7 @@ module.exports = (function() {
       Object.freeze(moat.ServerContext.prototype);
       return true;
     };
+    Object.freeze(self);
   };
   Object.freeze(spi.Config);
   Object.freeze(spi);
