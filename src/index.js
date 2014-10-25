@@ -25,7 +25,9 @@ var moat = {};
 
 module.exports = (function() {
   var moatRuntime = null,   // Runtime prototype
+      context = {},
       serverContext = null,
+      clientContext = null,
       nsStore = {},         // namespace store
       pmStore = {};         // persistence module store
 
@@ -60,6 +62,7 @@ module.exports = (function() {
     /**
      * Whether or not the runtime is server-side.
      * 
+     * @readonly
      * @instance
      * @memberof moat.Runtime
      * @type {boolean}
@@ -69,6 +72,7 @@ module.exports = (function() {
     /**
      * The name of the engine.
      * 
+     * @readonly
      * @instance
      * @memberof moat.Runtime
      * @type {string}
@@ -78,6 +82,7 @@ module.exports = (function() {
     /**
      * The version of the engine.
      * 
+     * @readonly
      * @instance
      * @memberof moat.Runtime
      * @type {string}
@@ -94,22 +99,36 @@ module.exports = (function() {
   moat.Context = function() {
     assertType(this, moat.Context);
   };
+  Object.seal(context);
   Object.freeze(moat.Context);
 
   /**
    * The server-side running context.
    * Users shouldn't instantiate it directly as the runtime environment is responsible for providing the instance.
-   * 
    * @extends moat.Context
    * @class
+   * @constructor
+   * @param {object} namespace The namespace associated with the server context.
    */
-  moat.ServerContext = function() {
+  moat.ServerContext = function(namespace) {
+    assert(namespace, 'The namespace object is mandatory.');
     assertType(this, moat.ServerContext);
-    Object.seal(this);
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name namespace
+     */
+    this.namespace = namespace;
+    // Instance properties are set via prototype.
+    Object.freeze(this);
   };
   serverContext = new moat.Context();
   /**
    * 
+   * @readonly
    * @instance
    * @memberof moat.ServerContext
    * @type {object}
@@ -118,6 +137,16 @@ module.exports = (function() {
   serverContext.dmjob = null;
   /**
    * 
+   * @readonly
+   * @instance
+   * @memberof moat.ServerContext
+   * @type {object}
+   * @name device
+   */
+  serverContext.device = null;
+  /**
+   * 
+   * @readonly
    * @instance
    * @memberof moat.ServerContext
    * @type {array|object}
@@ -126,6 +155,7 @@ module.exports = (function() {
   serverContext.modelObjects = null;
   /**
    * 
+   * @readonly
    * @instance
    * @memberof moat.ServerContext
    * @type {object}
@@ -155,6 +185,35 @@ module.exports = (function() {
   Object.seal(serverContext);
   moat.ServerContext.prototype = serverContext;
   Object.freeze(moat.ServerContext);
+
+  /**
+   * The client-side running context.
+   * Users shouldn't instantiate it directly as the runtime environment is responsible for providing the instance.
+   * @extends moat.Context
+   * @class
+   * @constructor
+   * @param {object} namespace The namespace associated with the client context.
+   */
+  moat.ClientContext = function(namespace) {
+    assert(namespace, 'The namespace object is mandatory.');
+    assertType(this, moat.ClientContext);
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.ClientContext
+     * @type {object}
+     * @name namespace
+     */
+    this.namespace = namespace;
+    // Instance properties are set via prototype.
+    Object.freeze(this);
+  };
+  clientContext = new moat.Context();
+
+  Object.seal(clientContext);
+  moat.ClientContext.prototype = clientContext;
+  Object.freeze(moat.ClientContext);
 
   /**
    * Initializing the application package identified by the given packageId.
@@ -213,9 +272,6 @@ module.exports = (function() {
       return modellClass;
     }
     function buildModelClasses(ns, models) {
-      if (!models) {
-        throw 'Missing model descriptor!';
-      }
       for (var modelClassName in models) {
         if (models.hasOwnProperty(modelClassName)) {
           console.log('Building [' + modelClassName + ']');
@@ -240,6 +296,7 @@ module.exports = (function() {
       return ns;
     }
     var packageJson = readPackageJson(packageId);
+    assert(packageJson.models, 'The package[' + packageId + '] does not seem to be a MOAT js app since model descriptoers are missing in the package.json.');
     moat.persistence(DEFAULT_PERSISTENCE);
     ns = {};
     buildModelClasses(ns, packageJson.models);
@@ -264,10 +321,8 @@ module.exports = (function() {
    * @param {object} opts An object containing initializing parameters
    */
   moat.persistence = function(library, opts) {
+    assert(library, 'Missing peristence module name.');
     var module = null;
-    if (!library) {
-      throw 'Missing peristence module name.';
-    }
     module = pmStore[library];
     if (!module) {
       try {
@@ -407,7 +462,6 @@ module.exports = (function() {
       }
       moatRuntime = new Runtime();
       Object.freeze(runtimeProto);
-      Object.freeze(moat.ServerContext.prototype);
       return true;
     };
     Object.freeze(self);
