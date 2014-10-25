@@ -111,9 +111,13 @@ module.exports = (function() {
    * @class
    * @constructor
    * @param {object} namespace The namespace associated with the server context.
+   * @param {object} applicationId The applicationId of the running application.
+   * @param {object} packageId The packageId of the running application.
    */
-  moat.ServerContext = function(namespace) {
+  moat.ServerContext = function(namespace, applicationId, packageId) {
     assert(namespace, 'The namespace object is mandatory.');
+    assert(applicationId, 'The applicationId is mandatory.');
+    assert(packageId, 'The packageId is mandatory.');
     assertType(this, moat.ServerContext);
     /**
      * 
@@ -124,6 +128,24 @@ module.exports = (function() {
      * @name namespace
      */
     this.namespace = namespace;
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name applicationId
+     */
+    this.applicationId = applicationId;
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name packageId
+     */
+    this.packageId = packageId;
     // Instance properties are set via prototype.
     Object.freeze(this);
   };
@@ -195,9 +217,13 @@ module.exports = (function() {
    * @class
    * @constructor
    * @param {object} namespace The namespace associated with the client context.
+   * @param {object} applicationId The applicationId of the running application.
+   * @param {object} packageId The packageId of the running application.
    */
-  moat.ClientContext = function(namespace) {
+  moat.ClientContext = function(namespace, applicationId, packageId) {
     assert(namespace, 'The namespace object is mandatory.');
+    assert(applicationId, 'The applicationId is mandatory.');
+    assert(packageId, 'The packageId is mandatory.');
     assertType(this, moat.ClientContext);
     /**
      * 
@@ -208,6 +234,24 @@ module.exports = (function() {
      * @name namespace
      */
     this.namespace = namespace;
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name applicationId
+     */
+    this.applicationId = applicationId;
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name packageId
+     */
+    this.packageId = packageId;
     // Instance properties are set via prototype.
     Object.freeze(this);
   };
