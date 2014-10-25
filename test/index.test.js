@@ -219,10 +219,25 @@ describe('moat.spi.Config', function() {
       config.serverContextProto.findPackage().should.equal('OK! I was overwritten.');
     });
   });
+  describe('#serviceBuilders', function() {
+    it('should be sealed so that users cannot add/remove but edit properties.', function() {
+      var config = new moat.spi.Config();
+      config.serviceBuilders.foo = 'yay!';
+      should.not.exist(config.serviceBuilders.foo);
+      config.serviceBuilders.client = function(options) {
+        return 'OK! I was overwritten.';
+      };
+      config.serviceBuilders.client().should.equal('OK! I was overwritten.');
+      config.serviceBuilders.server = function(object) {
+        return 'OK! I was overwritten.';
+      };
+      config.serviceBuilders.server().should.equal('OK! I was overwritten.');
+    });
+  });
   describe('#done', function() {
     it('should return true when it is terminated without errors.', function() {
       var config = new moat.spi.Config();
-      config.runtime.server = true;
+      config.runtime.server = false;
       config.runtime.version = '1.0.0';
       config.runtime.engine = 'servicesync';
       config.serverContextProto.httpSync = function(options) {
@@ -231,7 +246,11 @@ describe('moat.spi.Config', function() {
       config.serverContextProto.findPackage = function(object) {
         return 'OK! I was overwritten.';
       };
+      config.serviceBuilders.server = function(packageId, ns, main) {};
+      config.serviceBuilders.client = function(packageId, ns, main) {};
+      Object.isFrozen(config.runtime).should.equal(false);
       config.done().should.equal(true);
+      Object.isFrozen(config.runtime).should.equal(true);
     });
     it('should return false if "moat.Runtime.prototype" is frozen.', function() {
       var config = new moat.spi.Config();
@@ -403,84 +422,98 @@ describe('moat(initialized)', function() {
       moat.init('mypackage').should.equal(mypackage);
     });
     describe('mypackage(sample app package for testing)', function() {
-      it('should have model classes as properties.', function() {
-        mypackage.should.have.a.property('FirstLargeObject');
-        mypackage.should.have.a.property('SecondLargeObject');
-        Object.isSealed(mypackage.FirstLargeObject).should.equal(true);
-        Object.isFrozen(mypackage.FirstLargeObject).should.equal(false);
+      it('should have sub packages as properties.', function() {
+        mypackage.should.have.a.property('models');
+        mypackage.m.should.equal(mypackage.models);
+        mypackage.should.have.a.property('server');
+        mypackage.svr.should.equal(mypackage.server);
+        mypackage.should.have.a.property('client');
+        mypackage.clt.should.equal(mypackage.client);
+        Object.isFrozen(mypackage.models).should.equal(true);
+        Object.isFrozen(mypackage.server).should.equal(true);
+        Object.isFrozen(mypackage.client).should.equal(true);
       });
-      describe('.FirstLargeObject', function() {
-        it('should have mapper functions as class methods.', function() {
-          var FirstLargeObject = mypackage.FirstLargeObject;
-          FirstLargeObject.should.have.a.property('add');
-          FirstLargeObject.should.have.a.property('remove');
-          FirstLargeObject.should.have.a.property('update');
-          FirstLargeObject.should.have.a.property('updateFields');
-          FirstLargeObject.should.have.a.property('findByUid');
-          FirstLargeObject.should.have.a.property('findAllUids');
-          FirstLargeObject.should.have.a.property('count');
-          FirstLargeObject.add.should.be.a('function');
-          FirstLargeObject.remove.should.be.a('function');
-          FirstLargeObject.update.should.be.a('function');
-          FirstLargeObject.updateFields.should.be.a('function');
-          FirstLargeObject.findByUid.should.be.a('function');
-          FirstLargeObject.findAllUids.should.be.a('function');
-          FirstLargeObject.count.should.be.a('function');
+      describe('.models', function() {
+        var models = null;
+        it('should have model classes as properties.', function() {
+          models = mypackage.models;
+          models.should.have.a.property('FirstLargeObject');
+          models.should.have.a.property('SecondLargeObject');
+          Object.isSealed(models.FirstLargeObject).should.equal(true);
+          Object.isFrozen(models.FirstLargeObject).should.equal(false);
         });
-        describe('instance', function() {
-          it('should be sealed but NOT frozen.', function() {
-            var obj = new mypackage.FirstLargeObject();
-            Object.isSealed(obj).should.equal(true);
-            Object.isFrozen(obj).should.equal(false);
+        describe('.FirstLargeObject', function() {
+          it('should have mapper functions as class methods.', function() {
+            var FirstLargeObject = models.FirstLargeObject;
+            FirstLargeObject.should.have.a.property('add');
+            FirstLargeObject.should.have.a.property('remove');
+            FirstLargeObject.should.have.a.property('update');
+            FirstLargeObject.should.have.a.property('updateFields');
+            FirstLargeObject.should.have.a.property('findByUid');
+            FirstLargeObject.should.have.a.property('findAllUids');
+            FirstLargeObject.should.have.a.property('count');
+            FirstLargeObject.add.should.be.a('function');
+            FirstLargeObject.remove.should.be.a('function');
+            FirstLargeObject.update.should.be.a('function');
+            FirstLargeObject.updateFields.should.be.a('function');
+            FirstLargeObject.findByUid.should.be.a('function');
+            FirstLargeObject.findAllUids.should.be.a('function');
+            FirstLargeObject.count.should.be.a('function');
           });
-          it('should have attributes declared in the package.json.', function() {
-            var obj = new mypackage.FirstLargeObject();
-            obj.should.have.a.property('name');
-            obj.should.have.a.property('timestamp');
-            obj.should.have.a.property('file');
-            obj.should.have.a.property('binary');
+          describe('instance', function() {
+            it('should be sealed but NOT frozen.', function() {
+              var obj = new models.FirstLargeObject();
+              Object.isSealed(obj).should.equal(true);
+              Object.isFrozen(obj).should.equal(false);
+            });
+            it('should have attributes declared in the package.json.', function() {
+              var obj = new models.FirstLargeObject();
+              obj.should.have.a.property('name');
+              obj.should.have.a.property('timestamp');
+              obj.should.have.a.property('file');
+              obj.should.have.a.property('binary');
+            });
+            it('should have command functions declared in the package.json.', function() {
+              var obj = new models.FirstLargeObject();
+              obj.should.have.a.property('downloadToLocal');
+              obj.downloadToLocal.should.be.a('function');
+              obj.should.have.a.property('removeLocal');
+              obj.removeLocal.should.be.a('function');
+              obj.should.have.a.property('uploadFromLocal');
+              obj.uploadFromLocal.should.be.a('function');
+              obj.should.have.a.property('collectBinary');
+              obj.collectBinary.should.be.a('function');
+            });
           });
-          it('should have command functions declared in the package.json.', function() {
-            var obj = new mypackage.FirstLargeObject();
-            obj.should.have.a.property('downloadToLocal');
-            obj.downloadToLocal.should.be.a('function');
-            obj.should.have.a.property('removeLocal');
-            obj.removeLocal.should.be.a('function');
-            obj.should.have.a.property('uploadFromLocal');
-            obj.uploadFromLocal.should.be.a('function');
-            obj.should.have.a.property('collectBinary');
-            obj.collectBinary.should.be.a('function');
+          describe('#name', function() {
+            it('should be modified.', function() {
+              var obj = new models.FirstLargeObject();
+              obj.name = 'myname';
+              obj.name.should.equal('myname');
+            });
+          });
+          describe('#downloadToLocal', function() {
+            it('should be overridden.', function() {
+              should.exist(models.FirstLargeObject.prototype.downloadToLocal);
+              models.FirstLargeObject.prototype.downloadToLocal = function(params, callback) {
+                return 'ok';
+              };
+              var obj = new models.FirstLargeObject();
+              should.exist(obj.downloadToLocal);
+              obj.downloadToLocal().should.equal('ok');
+            });
           });
         });
-        describe('#name', function() {
-          it('should be modified.', function() {
-            var obj = new mypackage.FirstLargeObject();
-            obj.name = 'myname';
-            obj.name.should.equal('myname');
-          });
-        });
-        describe('#downloadToLocal', function() {
-          it('should be overridden.', function() {
-            should.exist(mypackage.FirstLargeObject.prototype.downloadToLocal);
-            mypackage.FirstLargeObject.prototype.downloadToLocal = function(params, callback) {
-              return 'ok';
-            };
-            var obj = new mypackage.FirstLargeObject();
-            should.exist(obj.downloadToLocal);
-            obj.downloadToLocal().should.equal('ok');
+        describe('.SecondLargeObject', function() {
+          describe('instance', function() {
+            it('should be sealed but NOT frozen.', function() {
+              var obj = new models.SecondLargeObject();
+              Object.isSealed(obj).should.equal(true);
+              Object.isFrozen(obj).should.equal(false);
+            });
           });
         });
       });
-      describe('.SecondLargeObject', function() {
-        describe('instance', function() {
-          it('should be sealed but NOT frozen.', function() {
-            var obj = new mypackage.SecondLargeObject();
-            Object.isSealed(obj).should.equal(true);
-            Object.isFrozen(obj).should.equal(false);
-          });
-        });
-      });
-
     });
   });
 });

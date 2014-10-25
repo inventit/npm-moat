@@ -28,6 +28,8 @@ module.exports = (function() {
       context = {},
       serverContext = null,
       clientContext = null,
+      serverServiceBuilder = null,
+      clientServiceBuilder = null,
       nsStore = {},         // namespace store
       pmStore = {};         // persistence module store
 
@@ -222,6 +224,7 @@ module.exports = (function() {
    * @returns {object} A namespace object of the application package.
    */
   moat.init = function(packageId) {
+    assert(moatRuntime, 'Illegal state.');
     function newDefaultValue(type) {
       if (!type) {
         return null;
@@ -298,8 +301,20 @@ module.exports = (function() {
     var packageJson = readPackageJson(packageId);
     assert(packageJson.models, 'The package[' + packageId + '] does not seem to be a MOAT js app since model descriptoers are missing in the package.json.');
     moat.persistence(DEFAULT_PERSISTENCE);
-    ns = {};
-    buildModelClasses(ns, packageJson.models);
+    ns = {
+      models: {},
+      server: {},
+      client: {}
+    };
+    ns.m = ns.models;
+    ns.svr = ns.server;
+    ns.clt = ns.client;
+    buildModelClasses(ns.m, packageJson.models);
+    Object.freeze(ns.m);
+    serverServiceBuilder(packageId, ns.svr, packageJson.serverMain);
+    Object.freeze(ns.svr);
+    clientServiceBuilder(packageId, ns.clt, packageJson.main);
+    Object.freeze(ns.clt);
     Object.freeze(ns);
     nsStore[packageId] = ns;
     return ns;
@@ -420,6 +435,8 @@ module.exports = (function() {
   var spi = moat.spi;
 
   /**
+   * This class represents the configuration information regarding the underlying moat API and runtime environment.
+   * Users don't have to use this class directly but the runtime environment does.
    * @class
    */
   moat.spi.Config = function() {
@@ -448,6 +465,34 @@ module.exports = (function() {
     self.serverContextProto = moat.ServerContext.prototype;
     Object.seal(self.runtime);
     /**
+     * An object containing service builders for both server and client.
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.spi.Config
+     * @type {object}
+     * @name serviceBuilders
+     */
+    self.serviceBuilders = {
+      /**
+       * Server service builder.
+       * 
+       * @instance
+       * @memberof serviceBuilders
+       * @type {function}
+       */
+      server: notConf,
+      /**
+       * Client service builder.
+       * 
+       * @instance
+       * @memberof serviceBuilders
+       * @type {function}
+       */
+      client: notConf
+    };
+    Object.seal(self.serviceBuilders);
+    /**
      * 
      * @instance
      * @memberof moat.spi.Config
@@ -462,6 +507,8 @@ module.exports = (function() {
       }
       moatRuntime = new Runtime();
       Object.freeze(runtimeProto);
+      serverServiceBuilder = self.serviceBuilders.server;
+      clientServiceBuilder = self.serviceBuilders.client;
       return true;
     };
     Object.freeze(self);
