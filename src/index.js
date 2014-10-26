@@ -239,7 +239,7 @@ module.exports = (function() {
      * 
      * @readonly
      * @instance
-     * @memberof moat.ServerContext
+     * @memberof moat.ClientContext
      * @type {object}
      * @name applicationId
      */
@@ -248,7 +248,7 @@ module.exports = (function() {
      * 
      * @readonly
      * @instance
-     * @memberof moat.ServerContext
+     * @memberof moat.ClientContext
      * @type {object}
      * @name packageId
      */
