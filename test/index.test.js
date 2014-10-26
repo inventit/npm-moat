@@ -560,3 +560,176 @@ describe('moat(initialized)', function() {
     });
   });
 });
+
+describe('moat.Utils', function() {
+  it('should be frozen.', function() {
+    Object.isFrozen(moat.Utils).should.equal(true);
+  });
+  it('should have static methods.', function() {
+    moat.Utils.should.have.a.property('digest');
+    moat.Utils.digest.should.be.a('function');
+    moat.Utils.should.have.a.property('hmac');
+    moat.Utils.hmac.should.be.a('function');
+    moat.Utils.should.have.a.property('hex2b64');
+    moat.Utils.hex2b64.should.be.a('function');
+    moat.Utils.should.have.a.property('b642hex');
+    moat.Utils.b642hex.should.be.a('function');
+    moat.Utils.should.have.a.property('text2hex');
+    moat.Utils.text2hex.should.be.a('function');
+    moat.Utils.should.have.a.property('hex2text');
+    moat.Utils.hex2text.should.be.a('function');
+    moat.Utils.should.have.a.property('text2b64');
+    moat.Utils.text2b64.should.be.a('function');
+    moat.Utils.should.have.a.property('b642text');
+    moat.Utils.b642text.should.be.a('function');
+  });
+  it('should be a singleton.', function() {
+    new moat.Utils().should.equal(moat.Utils);
+  });
+  describe('.digest', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.digest('MD5');
+      }).should.throw('Set the encoding, one of hex, b64 or plain is available.');
+      (function() {
+        moat.Utils.digest('MD5', 'hex');
+      }).should.throw('value is missing');
+      (function() {
+        moat.Utils.digest('MD512', 'hex', 'servicesync');
+      }).should.throw('Set the algorithm, one of MD5, SHA1, or SHA256 is available.');
+      (function() {
+        moat.Utils.digest('MD5', 'binary', 'servicesync');
+      }).should.throw('Set the encoding, one of hex, b64 or plain is available.');
+      (function() {
+        moat.Utils.digest('MD5', 'hex', true);
+      }).should.throw('value should be string.');
+    });
+    it('should return the valid digest value.', function() {
+      moat.Utils.digest('MD5', 'hex', 'servicesync').should.equal('9936b41329a55c42dc87f6cd53ff93a2');
+      moat.Utils.digest('MD5', 'b64', 'servicesync').should.equal('mTa0EymlXELch/bNU/+Tog==');
+      moat.Utils.digest('SHA1', 'hex', 'servicesync').should.equal('49e09261cd886ce484f638c9264d2ce82d92d9a7');
+      moat.Utils.digest('SHA1', 'b64', 'servicesync').should.equal('SeCSYc2IbOSE9jjJJk0s6C2S2ac=');
+      moat.Utils.digest('SHA256', 'hex', 'servicesync').should.equal('ee9a6e168d76c3c95d658e6d3fd0a55105516b924dfb8c5ca40c683a1b696867');
+      moat.Utils.digest('SHA256', 'b64', 'servicesync').should.equal('7ppuFo12w8ldZY5tP9ClUQVRa5JN+4xcpAxoOhtpaGc=');
+    });
+  });
+  describe('.hmac', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.hmac('MD5');
+      }).should.throw('Set the encoding, one of hex, b64 or plain is available.');
+      (function() {
+        moat.Utils.hmac('MD5', 'hex');
+      }).should.throw('secret is missing.');
+      (function() {
+        moat.Utils.hmac('MD5', 'hex', 'secret');
+      }).should.throw('value is missing');
+      (function() {
+        moat.Utils.hmac('MD512', 'hex', 'secret', 'servicesync');
+      }).should.throw('Set the algorithm, one of MD5, SHA1, or SHA256 is available.');
+      (function() {
+        moat.Utils.hmac('MD5', 'binary', 'secret', 'servicesync');
+      }).should.throw('Set the encoding, one of hex, b64 or plain is available.');
+      (function() {
+        moat.Utils.hmac('MD5', 'hex', true, true);
+      }).should.throw('secret should be string.');
+      (function() {
+        moat.Utils.hmac('MD5', 'hex', 'secret', true);
+      }).should.throw('value should be string.');
+    });
+    it('should return the valid digest value.', function() {
+      moat.Utils.hmac('MD5', 'hex', 'secret',  'servicesync').should.equal('e60b80135cb37c1eda1c4c3a0418d243');
+      moat.Utils.hmac('MD5', 'b64', 'secret', 'servicesync').should.equal('5guAE1yzfB7aHEw6BBjSQw==');
+      moat.Utils.hmac('SHA1', 'hex', 'secret', 'servicesync').should.equal('174d89b7793814f0169d7fd0ee9d8cecfbec98b8');
+      moat.Utils.hmac('SHA1', 'b64', 'secret', 'servicesync').should.equal('F02Jt3k4FPAWnX/Q7p2M7PvsmLg=');
+      moat.Utils.hmac('SHA256', 'hex', 'secret', 'servicesync').should.equal('5bc512af727da8cea6af0d8861b6b60186d4a0723dc24539d53f3e09fe79c3c9');
+      moat.Utils.hmac('SHA256', 'b64', 'secret', 'servicesync').should.equal('W8USr3J9qM6mrw2IYba2AYbUoHI9wkU51T8+Cf55w8k=');
+    });
+  });
+  describe('.hex2b64', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.hex2b64();
+      }).should.throw('hex is missing.');
+      (function() {
+        moat.Utils.hex2b64(true);
+      }).should.throw('hex should be string.');
+      (function() {
+        // the size is odd.
+        moat.Utils.hex2b64('e60b80135cb37c1eda1c4c3a0418d24');
+      }).should.throw('Invalid hex string');
+    });
+    it('should return the valid converted value.', function() {
+      moat.Utils.hex2b64('e60b80135cb37c1eda1c4c3a0418d243').should.equal('5guAE1yzfB7aHEw6BBjSQw==');
+    });
+  });
+  describe('.b642hex', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.b642hex();
+      }).should.throw('b64 is missing.');
+      (function() {
+        moat.Utils.b642hex(true);
+      }).should.throw('b64 should be string.');
+    });
+    it('should return the valid converted value.', function() {
+      moat.Utils.b642hex('5guAE1yzfB7aHEw6BBjSQw==').should.equal('e60b80135cb37c1eda1c4c3a0418d243');
+    });
+  });
+  describe('.text2hex', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.text2hex();
+      }).should.throw('text is missing.');
+      (function() {
+        moat.Utils.text2hex(true);
+      }).should.throw('text should be string.');
+    });
+    it('should return the valid converted value.', function() {
+      moat.Utils.text2hex('servicesync').should.equal('7365727669636573796e63');
+      moat.Utils.text2hex('utf-8', 'servicesync').should.equal('7365727669636573796e63');
+    });
+  });
+  describe('.hex2text', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.hex2text();
+      }).should.throw('hex is missing.');
+      (function() {
+        moat.Utils.hex2text(true);
+      }).should.throw('hex should be string.');
+    });
+    it('should return the valid converted value.', function() {
+      moat.Utils.hex2text('7365727669636573796e63').should.equal('servicesync');
+      moat.Utils.hex2text('utf-8', '7365727669636573796e63').should.equal('servicesync');
+    });
+  });
+  describe('.text2b64', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.text2b64();
+      }).should.throw('text is missing.');
+      (function() {
+        moat.Utils.text2b64(true);
+      }).should.throw('text should be string.');
+    });
+    it('should return the valid converted value.', function() {
+      moat.Utils.text2b64('servicesync').should.equal('c2VydmljZXN5bmM=');
+      moat.Utils.text2b64('utf-8', 'servicesync').should.equal('c2VydmljZXN5bmM=');
+    });
+  });
+  describe('.b642text', function() {
+    it('should not accept the wrong parameters.', function() {
+      (function() {
+        moat.Utils.b642text();
+      }).should.throw('b64 is missing.');
+      (function() {
+        moat.Utils.b642text(true);
+      }).should.throw('b64 should be string.');
+    });
+    it('should return the valid converted value.', function() {
+      moat.Utils.b642text('c2VydmljZXN5bmM=').should.equal('servicesync');
+      moat.Utils.b642text('utf-8', 'c2VydmljZXN5bmM=').should.equal('servicesync');
+    });
+  });
+});

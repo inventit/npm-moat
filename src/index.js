@@ -31,11 +31,12 @@ module.exports = (function() {
       serverServiceBuilder = null,
       clientServiceBuilder = null,
       nsStore = {},         // namespace store
-      pmStore = {};         // persistence module store
+      pmStore = {},         // persistence module store
+      crypto = require('crypto');
 
   /**
-   * Representing the currently running environment information.
-   * This class is a singleton, users shouldn't instantiate it.
+   * Representing the currently running environment information.<br />
+   * This class is a singleton, users shouldn't instantiate it.<br />
    * 
    * @class
    */
@@ -105,8 +106,8 @@ module.exports = (function() {
   Object.freeze(moat.Context);
 
   /**
-   * The server-side running context.
-   * Users shouldn't instantiate it directly as the runtime environment is responsible for providing the instance.
+   * The server-side running context.<br />
+   * Users shouldn't instantiate it directly as the runtime environment is responsible for providing the instance.<br />
    * @extends moat.Context
    * @class
    * @constructor
@@ -211,8 +212,8 @@ module.exports = (function() {
   Object.freeze(moat.ServerContext);
 
   /**
-   * The client-side running context.
-   * Users shouldn't instantiate it directly as the runtime environment is responsible for providing the instance.
+   * The client-side running context.<br />
+   * Users shouldn't instantiate it directly as the runtime environment is responsible for providing the instance.<br />
    * @extends moat.Context
    * @class
    * @constructor
@@ -260,6 +261,264 @@ module.exports = (function() {
   Object.seal(clientContext);
   moat.ClientContext.prototype = clientContext;
   Object.freeze(moat.ClientContext);
+
+  /**
+   * A class having static utility methods.<br />
+   * The server-side MOAT js services may require this class since they aren't allowed to use built-in node modules and arbitrary npm modules on the server-side MOAT runtime, which provides isolated sandbox environment for the security purpose.<br />
+   * The client-side MOAT js sevices may use this class though the use is NOT mandatory.<br />
+   * <br />
+   * Users should use the class object, {@link moat.Utils} itself, rather than its instance. The constructor always returns {@link moat.Utils} class object.
+   * @class
+   * @constructor
+   */
+  moat.Utils = function() {
+    return moat.Utils;
+  };
+  var Utils = moat.Utils;
+  /**
+   * Returns a hash digest value as a string in the given encoding.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name digest
+   * @param {string} algorithm One of 'MD5', 'SHA1', 'SHA256' is acceptable.
+   * @param {string} encoding The type of encoding used for a value string. One of 'hex','b64', 'plain'.
+   * @param {string} value A  string value to be calculated.
+   * @returns {string} A digest hash value with the given encoding. Note that a hex string is returned if the encoding is 'plain'.
+   */
+  Utils.digest = function(algorithm, encoding, value) {
+    assert(algorithm, 'Set the algorithm, one of MD5, SHA1, or SHA256 is available.');
+    assert(algorithm === 'MD5' || algorithm === 'SHA1' || algorithm === 'SHA256',
+      'Set the algorithm, one of MD5, SHA1, or SHA256 is available.');
+    assert(encoding, 'Set the encoding, one of hex, b64 or plain is available.');
+    assert(encoding == 'hex' || encoding == 'b64' || encoding == 'plain',
+      'Set the encoding, one of hex, b64 or plain is available.');
+    assert(value, 'value is missing.');
+    assert(typeof(value) === 'string', 'value should be string.');
+    var shasum = crypto.createHash(algorithm);
+    shasum.update(value);
+    var digest = null;
+    switch (encoding) {
+    default:
+    case 'hex':
+      digest = shasum.digest('hex');
+      break;
+    case 'b64':
+      digest = shasum.digest('base64');
+      break;
+    case 'plain':
+      digest = shasum.digest('binary').toString('utf8');
+      break;
+    }
+    return digest;
+  };
+  /**
+   * Returns a hmac value as a string in the given encoding.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name hmac
+   * @param {string} algorithm One of 'MD5', 'SHA1', 'SHA256' is acceptable.
+   * @param {string} encoding The type of encoding used for a value string. One of 'hex','b64', 'plain'.
+   * @param {string} secret A secret text.
+   * @param {string} value A  string value to be calculated.
+   * @returns {string} An HMAC value with the given encoding. Note that a hex string is returned if the encoding is 'plain'.
+   */
+  Utils.hmac = function(algorithm, encoding, secret, value) {
+    assert(algorithm, 'Set the algorithm, one of MD5, SHA1, or SHA256 is available.');
+    assert(algorithm === 'MD5' || algorithm === 'SHA1' || algorithm === 'SHA256',
+      'Set the algorithm, one of MD5, SHA1, or SHA256 is available.');
+    assert(encoding, 'Set the encoding, one of hex, b64 or plain is available.');
+    assert(encoding == 'hex' || encoding == 'b64' || encoding == 'plain',
+      'Set the encoding, one of hex, b64 or plain is available.');
+    assert(secret, 'secret is missing.');
+    assert(typeof(secret) === 'string', 'secret should be string.');
+    assert(value, 'value is missing');
+    assert(typeof(value) === 'string', 'value should be string.');
+    var shasum = crypto.createHmac(algorithm, secret);
+    shasum.update(value);
+    var digest = null;
+    switch (encoding) {
+    default:
+    case 'hex':
+      digest = shasum.digest('hex');
+      break;
+    case 'b64':
+      digest = shasum.digest('base64');
+      break;
+    case 'plain':
+      digest = shasum.digest('binary').toString('utf8');
+      break;
+    }
+    return digest;
+  };
+  /**
+   * Converts a given hex string to a base64 string.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name hex2b64
+   * @param {string} hex a hex string.
+   * @returns {string} A Base64 string.
+   */
+  Utils.hex2b64 = function(hex) {
+    assert(hex, 'hex is missing.');
+    assert(typeof(hex) === 'string', 'hex should be string.');
+    var buf = new Buffer(hex, 'hex');
+    return buf.toString('base64');
+  };
+  /**
+   * Converts a given hex string to a base64 string.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name b642hex
+   * @param {string} b64 A Base64 string.
+   * @returns {string} A hex string.
+   */
+  Utils.b642hex = function(b64) {
+    assert(b64, 'b64 is missing.');
+    assert(typeof(b64) === 'string', 'b64 should be string.');
+    var buf = new Buffer(b64, 'base64');
+    return buf.toString('hex');
+  };
+  function text2_(target, arg1, arg2) {
+    var text = null,
+        encoding = 'utf8',
+        format = target;
+    if (arg2) {
+      text = arg2;
+      encoding = arg1;
+    } else {
+      assert(arg1, 'text is missing.');
+      text = arg1;
+    }
+    assert(typeof(text) === 'string', 'text should be string.');
+    if (format === 'b64') {
+      format = 'base64';
+    }
+    var buf = new Buffer(text, encoding);
+    return buf.toString(format);
+  }
+  function textFrom_(target, arg1, arg2) {
+    var str = null,
+        encoding = 'utf8',
+        format = target;
+    if (arg2) {
+      str = arg2;
+      encoding = arg1;
+    } else {
+      assert(arg1, target + ' is missing.');
+      str = arg1;
+    }
+    assert(typeof(str) === 'string', target + ' should be string.');
+    if (format === 'b64') {
+      format = 'base64';
+    }
+    var buf = new Buffer(str, format);
+    return buf.toString(encoding);
+  }
+  /**
+   * Converts a plain text into a hex string.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name text2hex
+   * @param {string} plain A plain text.
+   * @returns {string} A hex string.
+   */
+  /**
+   * Converts a plain text into a hex string.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name text2hex
+   * @param {string} encoding The character encoding. UTF-8 by default.
+   * @param {string} text A plain text.
+   * @returns {string} A hex string.
+   */
+  Utils.text2hex = function(arg1, arg2) {
+    return text2_('hex', arg1, arg2);
+  };
+  /**
+   * Converts a hex string into a plain text.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name hex2text
+   * @param {string} hex A hex string.
+   * @returns {string} A plain text.
+   */
+  /**
+   * Converts a hex string into a plain text.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name hex2text
+   * @param {string} encoding The character encoding. UTF-8 by default.
+   * @param {string} hex A hex string.
+   * @returns {string} A plain text.
+   */
+  Utils.hex2text = function(arg1, arg2) {
+    return textFrom_('hex', arg1, arg2);
+  };
+  /**
+   * Converts a plain text into a Base64 string.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name text2b64
+   * @param {string} plain A plain text.
+   * @returns {string} A Base64 string.
+   */
+  /**
+   * Converts a plain text into a Base64 string.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name text2b64
+   * @param {string} encoding The character encoding. UTF-8 by default.
+   * @param {string} plain A plain text.
+   * @returns {string} A Base64 string.
+   */
+  Utils.text2b64 = function(arg1, arg2) {
+    return text2_('b64', arg1, arg2);
+  };
+  /**
+   * Converts a Base64 string into a plain text.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name b642hex
+   * @param {string} b64 A Base64 string.
+   * @returns {string} A plain text.
+   */
+  /**
+   * Converts a Base64 string into a plain text.
+   * 
+   * @static
+   * @memberof moat.Utils
+   * @function
+   * @name b642hex
+   * @param {string} encoding The character encoding. UTF-8 by default.
+   * @param {string} b64 A Base64 string.
+   * @returns {string} A plain text.
+   */
+  Utils.b642text = function(arg1, arg2) {
+    return textFrom_('b64', arg1, arg2);
+  };
+  Object.freeze(moat.Utils);
 
   /**
    * Initializing the application package identified by the given packageId.
