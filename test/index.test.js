@@ -438,33 +438,39 @@ describe('moat(initialized)', function() {
     it('should not accept an empty string and a path as a packageId.', function() {
       (function () {
         moat.init();
+      }).should.throw('context is missing.');
+      (function () {
+        moat.init({});
       }).should.throw('packageId is missing.');
       (function () {
-        moat.init('');
+        moat.init({packageId: ''});
       }).should.throw('packageId is missing.');
       (function () {
-        moat.init('./mypackage');
+        moat.init({packageId: './mypackage'});
       }).should.throw('packageId should not be a path.');
       (function () {
-        moat.init('/mypackage');
+        moat.init({packageId: '/mypackage'});
       }).should.throw('packageId should not be a path.');
     });
 
     it('should not accept a missing packageId.', function() {
       (function () {
-        moat.init('no-such-a-package!!');
+        moat.init({packageId: 'no-such-a-package!!'});
       }).should.throw("Cannot find module 'no-such-a-package!!'");
     });
 
     var mypackage = null;
     it('should load a given moat package.', function() {
-      mypackage = moat.init('mypackage');
+      mypackage = moat.init({packageId: 'mypackage'});
       should.exist(mypackage);
     });
     it('should cache the already loaded package.', function() {
-      moat.init('mypackage').should.equal(mypackage);
+      moat.init({packageId: 'mypackage'}).should.equal(mypackage);
     });
     describe('mypackage(sample app package for testing)', function() {
+      it('should return the package id when toString() is invoked.', function() {
+        String(mypackage).should.equal('mypackage');
+      });
       it('should have sub packages as properties.', function() {
         mypackage.should.have.a.property('models');
         mypackage.m.should.equal(mypackage.models);

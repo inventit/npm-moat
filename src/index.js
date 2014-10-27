@@ -523,10 +523,10 @@ module.exports = (function() {
   /**
    * Initializing the application package identified by the given packageId.
    * 
-   * @param {string} packageId of the application to be started.
+   * @param {moat.Context} context The running context passed by the runtime environment rather than user apps.
    * @returns {object} A namespace object of the application package.
    */
-  moat.init = function(packageId) {
+  moat.init = function(context) {
     assert(moatRuntime, 'Illegal state.');
     function newDefaultValue(type) {
       if (!type) {
@@ -595,6 +595,8 @@ module.exports = (function() {
       return packageJson;
     }
 
+    assert(context, 'context is missing.');
+    var packageId = context.packageId;
     assert(packageId && packageId.length > 0, 'packageId is missing.');
     assert(packageId[0] != '.' && packageId[0] != '/', 'packageId should not be a path.');
     var ns = nsStore[packageId];
@@ -607,7 +609,10 @@ module.exports = (function() {
     ns = {
       models: {},
       server: {},
-      client: {}
+      client: {},
+      toString: function() {
+        return packageId;
+      }
     };
     ns.m = ns.models;
     ns.svr = ns.server;
@@ -627,7 +632,7 @@ module.exports = (function() {
    * Short name alias for init() function.
    * 
    * @function
-   * @param {string} packageId of the application to be started.
+   * @param {moat.Context} context The running context passed by the runtime environment rather than user apps.
    * @returns {object} A namespace object of the application package.
    */
   moat.i = moat.init;
