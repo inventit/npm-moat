@@ -112,11 +112,11 @@ module.exports = (function() {
    * @class
    * @constructor
    * @param {object} namespace The namespace associated with the server context.
-   * @param {object} applicationId The applicationId of the running application.
-   * @param {object} packageId The packageId of the running application.
    */
-  moat.ServerContext = function(namespace, applicationId, packageId) {
+  moat.ServerContext = function(namespace) {
     assert(namespace, 'The namespace object is mandatory.');
+    var applicationId = namespace.applicationId;
+    var packageId = namespace.packageId;
     assert(applicationId, 'The applicationId is mandatory.');
     assert(packageId, 'The packageId is mandatory.');
     assertType(this, moat.ServerContext);
@@ -218,11 +218,11 @@ module.exports = (function() {
    * @class
    * @constructor
    * @param {object} namespace The namespace associated with the client context.
-   * @param {object} applicationId The applicationId of the running application.
-   * @param {object} packageId The packageId of the running application.
    */
-  moat.ClientContext = function(namespace, applicationId, packageId) {
+  moat.ClientContext = function(namespace) {
     assert(namespace, 'The namespace object is mandatory.');
+    var applicationId = namespace.applicationId;
+    var packageId = namespace.packageId;
     assert(applicationId, 'The applicationId is mandatory.');
     assert(packageId, 'The packageId is mandatory.');
     assertType(this, moat.ClientContext);
@@ -523,10 +523,12 @@ module.exports = (function() {
   /**
    * Initializing the application package identified by the given packageId.
    * 
-   * @param {moat.Context} context The running context passed by the runtime environment rather than user apps.
+   * @param {string} applicationId The applicationId of the application to be started.
+   * @param {string} packageId The packageId of the application to be started.
+   * @param {require} resolver The <code>require</code> function on the caller's context.
    * @returns {object} A namespace object of the application package.
    */
-  moat.init = function(context) {
+  moat.init = function(applicationId, packageId, resolver) {
     assert(moatRuntime, 'Illegal state.');
     function newDefaultValue(type) {
       if (!type) {
@@ -589,30 +591,29 @@ module.exports = (function() {
         }
       }
     }
-    function readPackageJson(packageId) {
-      var packageJsonPath = path.resolve(require.resolve(packageId), '../package.json');
-      var packageJson = require(packageJsonPath);
+    function readPackageJson(packageId, resolver) {
+      var packageJsonPath = path.resolve(resolver.resolve(packageId), '../package.json');
+      var packageJson = resolver(packageJsonPath);
       return packageJson;
     }
 
-    assert(context, 'context is missing.');
-    var packageId = context.packageId;
+    assert(applicationId && applicationId.length > 0, 'applicationId is missing.');
     assert(packageId && packageId.length > 0, 'packageId is missing.');
     assert(packageId[0] != '.' && packageId[0] != '/', 'packageId should not be a path.');
+    assert(resolver && typeof resolver === 'function', 'The require function is missing.');
     var ns = nsStore[packageId];
     if (ns) {
       return ns;
     }
-    var packageJson = readPackageJson(packageId);
+    var packageJson = readPackageJson(packageId, resolver);
     assert(packageJson.models, 'The package[' + packageId + '] does not seem to be a MOAT js app since model descriptoers are missing in the package.json.');
     moat.persistence(DEFAULT_PERSISTENCE);
     ns = {
       models: {},
       server: {},
       client: {},
-      toString: function() {
-        return packageId;
-      }
+      applicationId: applicationId,
+      packageId: packageId
     };
     ns.m = ns.models;
     ns.svr = ns.server;
@@ -625,6 +626,7 @@ module.exports = (function() {
     Object.freeze(ns.clt);
     Object.freeze(ns);
     nsStore[packageId] = ns;
+    console.log('namespace[' + packageId + '] has been generated.');
     return ns;
   };
 
@@ -632,7 +634,9 @@ module.exports = (function() {
    * Short name alias for init() function.
    * 
    * @function
-   * @param {moat.Context} context The running context passed by the runtime environment rather than user apps.
+   * @param {string} applicationId The applicationId of the application to be started.
+   * @param {string} packageId The packageId of the application to be started.
+   * @param {require} resolver The <code>require</code> function on the caller's context.
    * @returns {object} A namespace object of the application package.
    */
   moat.i = moat.init;
@@ -788,6 +792,9 @@ module.exports = (function() {
        * @instance
        * @memberof serviceBuilders
        * @type {function}
+       * @param {string} packageId The packageId of the service.
+       * @param {object} namespace The namespace object the services belong to.
+       * @param {string} main The main script path.
        */
       server: notConf,
       /**
@@ -796,6 +803,9 @@ module.exports = (function() {
        * @instance
        * @memberof serviceBuilders
        * @type {function}
+       * @param {string} packageId The packageId of the service.
+       * @param {object} namespace The namespace object the services belong to.
+       * @param {string} main The main script path.
        */
       client: notConf
     };

@@ -40,20 +40,20 @@ describe('moat.ServerContext(not initialized)', function() {
   });
   describe('instance', function() {
     it('should be sealed and frozen.', function() {
-      var ns = {};
-      var obj = new moat.ServerContext(ns, 'appId', 'pkgId');
+      var ns = {applicationId:'appId', packageId:'pkgId'};
+      var obj = new moat.ServerContext(ns);
       Object.isSealed(obj).should.equal(true);
       Object.isFrozen(obj).should.equal(true);
     });
   });
   it('should be a type of moat.Context.', function() {
-    var ns = {};
-    var obj = new moat.ServerContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ServerContext(ns);
     obj.should.be.an.instanceOf(moat.Context);
   });
   it('should have properties named [applicationId, packageId, namespace, dmjob, device, modelObjects, database].', function() {
-    var ns = {};
-    var obj = new moat.ServerContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ServerContext(ns);
     obj.should.have.a.property('namespace');
     obj.should.have.a.property('applicationId');
     obj.should.have.a.property('packageId');
@@ -75,26 +75,26 @@ describe('moat.ServerContext(not initialized)', function() {
     });
     it('should require a namespace object, applicationId and packageId.', function() {
       (function () {
-        moat.ServerContext({}, 'appId');
+        moat.ServerContext({applicationId:'appId'});
       }).should.throw('The packageId is mandatory.');
     });
     it('should not be executed as a function as it is a constructor.', function() {
       (function () {
-        moat.ServerContext({}, 'appId', 'pkgId');
+        moat.ServerContext({applicationId:'appId', packageId:'pkgId'});
       }).should.throw('This is not a function.');
     });
   });
   describe('#httpSync', function() {
     it('should fail prior to moat.spi.Config#done() being invoked.', function() {
       (function () {
-        new moat.ServerContext({}, 'appId', 'pkgId').httpSync();
+        new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).httpSync();
       }).should.throw('Not yet configured.');
     });
   });
   describe('#findPackage', function() {
     it('should fail prior to moat.spi.Config#done() being invoked.', function() {
       (function () {
-        new moat.ServerContext({}, 'appId', 'pkgId').findPackage();
+        new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).findPackage();
       }).should.throw('Not yet configured.');
     });
   });
@@ -110,20 +110,20 @@ describe('moat.ClientContext(not initialized)', function() {
   });
   describe('instance', function() {
     it('should be sealed and frozen.', function() {
-      var ns = {};
-      var obj = new moat.ClientContext(ns, 'appId', 'pkgId');
+      var ns = {applicationId:'appId', packageId:'pkgId'};
+      var obj = new moat.ClientContext(ns);
       Object.isSealed(obj).should.equal(true);
       Object.isFrozen(obj).should.equal(true);
     });
   });
   it('should be a type of moat.Context.', function() {
-    var ns = {};
-    var obj = new moat.ClientContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ClientContext(ns);
     obj.should.be.an.instanceOf(moat.Context);
   });
   it('should have properties named [namespace, applicationId, packageId].', function() {
-    var ns = {};
-    var obj = new moat.ClientContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ClientContext(ns);
     obj.should.have.a.property('namespace');
     obj.should.have.a.property('applicationId');
     obj.should.have.a.property('packageId');
@@ -141,12 +141,12 @@ describe('moat.ClientContext(not initialized)', function() {
     });
     it('should require a namespace object, applicationId and packageId.', function() {
       (function () {
-        moat.ClientContext({}, 'appId');
+        moat.ClientContext({applicationId:'appId'});
       }).should.throw('The packageId is mandatory.');
     });
     it('should not be executed as a function as it is a constructor.', function() {
       (function () {
-        moat.ClientContext({}, 'appId', 'pkgId');
+        moat.ClientContext({applicationId:'appId', packageId:'pkgId'});
       }).should.throw('This is not a function.');
     });
   });
@@ -303,13 +303,13 @@ describe('moat.ServerContext(initialized)', function() {
     Object.isFrozen(moat.ServerContext).should.equal(true);
   });
   it('should be a type of moat.Context.', function() {
-    var ns = {};
-    var obj = new moat.ServerContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ServerContext(ns);
     obj.should.be.an.instanceOf(moat.Context);
   });
   it('should have properties named [namespace, applicationId, packageId, dmjob, device, modelObjects, database].', function() {
-    var ns = {};
-    var obj = new moat.ServerContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ServerContext(ns);
     obj.should.have.a.property('namespace');
     obj.should.have.a.property('applicationId');
     obj.should.have.a.property('packageId');
@@ -320,8 +320,8 @@ describe('moat.ServerContext(initialized)', function() {
   });
   describe('instance', function() {
     it('should be sealed and frozen.', function() {
-      var ns = {};
-      var obj = new moat.ServerContext(ns, 'appId', 'pkgId');
+      var ns = {applicationId:'appId', packageId:'pkgId'};
+      var obj = new moat.ServerContext(ns);
       Object.isSealed(obj).should.equal(true);
       Object.isFrozen(obj).should.equal(true);
     });
@@ -339,23 +339,23 @@ describe('moat.ServerContext(initialized)', function() {
     });
     it('should require a namespace object, applicationId and packageId.', function() {
       (function () {
-        moat.ServerContext({}, 'appId');
+        moat.ServerContext({applicationId:'appId'});
       }).should.throw('The packageId is mandatory.');
     });
     it('should not be executed as a function as it is a constructor.', function() {
       (function () {
-        moat.ServerContext({}, 'appId', 'pkgId');
+        moat.ServerContext({applicationId:'appId', packageId:'pkgId'});
       }).should.throw('This is not a function.');
     });
   });
   describe('#httpSync', function() {
     it('should be overwritten after moat.spi.Config#done() being invoked.', function() {
-      new moat.ServerContext({}, 'appId', 'pkgId').httpSync().should.equal('OK! I was overwritten.');
+      new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).httpSync().should.equal('OK! I was overwritten.');
     });
   });
   describe('#findPackage', function() {
     it('should be overwritten after moat.spi.Config#done() being invoked.', function() {
-      new moat.ServerContext({}, 'appId', 'pkgId').findPackage().should.equal('OK! I was overwritten.');
+      new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).findPackage().should.equal('OK! I was overwritten.');
     });
   });
 });
@@ -366,21 +366,21 @@ describe('moat.ClientContext(initialized)', function() {
     Object.isFrozen(moat.ClientContext).should.equal(true);
   });
   it('should be a type of moat.Context.', function() {
-    var ns = {};
-    var obj = new moat.ClientContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ClientContext(ns);
     obj.should.be.an.instanceOf(moat.Context);
   });
   it('should have properties named [namespace, applicationId, packageId].', function() {
-    var ns = {};
-    var obj = new moat.ClientContext(ns, 'appId', 'pkgId');
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ClientContext(ns);
     obj.should.have.a.property('namespace');
     obj.should.have.a.property('applicationId');
     obj.should.have.a.property('packageId');
   });
   describe('instance', function() {
     it('should be sealed and frozen.', function() {
-      var ns = {};
-      var obj = new moat.ClientContext(ns, 'appId', 'pkgId');
+      var ns = {applicationId:'appId', packageId:'pkgId'};
+      var obj = new moat.ClientContext(ns);
       Object.isSealed(obj).should.equal(true);
       Object.isFrozen(obj).should.equal(true);
     });
@@ -394,12 +394,12 @@ describe('moat.ClientContext(initialized)', function() {
       });
       it('should require a namespace object, applicationId and packageId.', function() {
         (function () {
-          moat.ClientContext({}, 'appId');
+          moat.ClientContext({applicationId:'appId'});
         }).should.throw('The packageId is mandatory.');
       });
       it('should not be executed as a function as it is a constructor.', function() {
         (function () {
-          moat.ClientContext({}, 'appId', 'pkgId');
+          moat.ClientContext({applicationId:'appId', packageId:'pkgId'});
         }).should.throw('This is not a function.');
       });
     });
@@ -438,39 +438,46 @@ describe('moat(initialized)', function() {
     it('should not accept an empty string and a path as a packageId.', function() {
       (function () {
         moat.init();
-      }).should.throw('context is missing.');
+      }).should.throw('applicationId is missing.');
       (function () {
-        moat.init({});
+        moat.init('applicationId');
       }).should.throw('packageId is missing.');
       (function () {
-        moat.init({packageId: ''});
+        moat.init('applicationId', '');
       }).should.throw('packageId is missing.');
       (function () {
-        moat.init({packageId: './mypackage'});
+        moat.init('applicationId', './mypackage');
       }).should.throw('packageId should not be a path.');
       (function () {
-        moat.init({packageId: '/mypackage'});
+        moat.init('applicationId', '/mypackage');
       }).should.throw('packageId should not be a path.');
+      (function () {
+        moat.init('applicationId', 'mypackage');
+      }).should.throw('The require function is missing.');
+      (function () {
+        moat.init('applicationId', 'mypackage', {});
+      }).should.throw('The require function is missing.');
     });
 
     it('should not accept a missing packageId.', function() {
       (function () {
-        moat.init({packageId: 'no-such-a-package!!'});
+        moat.init('applicationId', 'no-such-a-package!!', require);
       }).should.throw("Cannot find module 'no-such-a-package!!'");
     });
 
     var mypackage = null;
     it('should load a given moat package.', function() {
-      mypackage = moat.init({packageId: 'mypackage'});
+      mypackage = moat.init('applicationId', 'mypackage', require);
       should.exist(mypackage);
+      mypackage.should.have.a.property('applicationId');
+      mypackage.should.have.a.property('packageId');
+      mypackage.applicationId.should.equal('applicationId');
+      mypackage.packageId.should.equal('mypackage');
     });
     it('should cache the already loaded package.', function() {
-      moat.init({packageId: 'mypackage'}).should.equal(mypackage);
+      moat.init('applicationId', 'mypackage', require).should.equal(mypackage);
     });
     describe('mypackage(sample app package for testing)', function() {
-      it('should return the package id when toString() is invoked.', function() {
-        String(mypackage).should.equal('mypackage');
-      });
       it('should have sub packages as properties.', function() {
         mypackage.should.have.a.property('models');
         mypackage.m.should.equal(mypackage.models);
