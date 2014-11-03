@@ -523,13 +523,50 @@ module.exports = (function() {
   /**
    * Initializing the application package identified by the given packageId.
    * 
-   * @param {string} applicationId The applicationId of the application to be started.
-   * @param {string} packageId The packageId of the application to be started.
+   * @param {string} urn The MOAT URN of the application package to be started.
    * @param {require} resolver The <code>require</code> function on the caller's context.
    * @returns {object} A namespace object of the application package.
    */
-  moat.init = function(applicationId, packageId, resolver) {
+  moat.init = function(urn, resolver) {
     assert(moatRuntime, 'Illegal state.');
+    function MoatURN(urn) {
+        if (!(this instanceof MoatURN)) {
+            throw 'This is not a function but a class!';
+        }
+        if (!urn) {
+            throw 'moat URN is missing.';
+        }
+        if (urn.indexOf('urn:moat:') !== 0) {
+            throw 'Invalid moat URN.';
+        }
+        var i = 'urn:moat:'.length, j;
+        j = urn.indexOf(':', i);
+        if (j < 0) {
+            throw 'Application id is missing.';
+        }
+        this.applicationId = urn.substring(i, j);
+        i = j + 1;
+        j = urn.indexOf(':', i);
+        if (j < 0) {
+            throw 'Package id is missing.';
+        }
+        this.packageId = urn.substring(i, j);
+        i = j + 1;
+        j = urn.indexOf(':', i);
+        if (j < 0) {
+            throw 'Operation is missing.';
+        }
+        this.operation = urn.substring(i, j);
+        i = j + 1;
+        if (j >= urn.length) {
+            throw 'Version is missing.';
+        }
+        this.version = urn.substring(i);
+        if (!this.version) {
+          throw 'Version is missing.';
+        }
+        this.urn = urn;
+    }
     function newDefaultValue(type) {
       if (!type) {
         return null;
@@ -597,9 +634,12 @@ module.exports = (function() {
       return packageJson;
     }
 
-    assert(applicationId && applicationId.length > 0, 'applicationId is missing.');
-    assert(packageId && packageId.length > 0, 'packageId is missing.');
-    assert(packageId[0] != '.' && packageId[0] != '/', 'packageId should not be a path.');
+    var moatUrn = new MoatURN(urn),
+        applicationId = moatUrn.applicationId,
+        packageId = moatUrn.packageId;
+    assert(applicationId && applicationId.length > 0, 'Application id is missing.');
+    assert(packageId && packageId.length > 0, 'Package id is missing.');
+    assert(packageId[0] != '.' && packageId[0] != '/', 'Package id should not be a path.');
     assert(resolver && typeof resolver === 'function', 'The require function is missing.');
     var ns = nsStore[packageId];
     if (ns) {
@@ -612,6 +652,7 @@ module.exports = (function() {
       models: {},
       server: {},
       client: {},
+      urn: urn,
       applicationId: applicationId,
       packageId: packageId
     };

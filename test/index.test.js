@@ -438,44 +438,61 @@ describe('moat(initialized)', function() {
     it('should not accept an empty string and a path as a packageId.', function() {
       (function () {
         moat.init();
-      }).should.throw('applicationId is missing.');
+      }).should.throw('moat URN is missing.');
       (function () {
         moat.init('applicationId');
-      }).should.throw('packageId is missing.');
+      }).should.throw('Invalid moat URN.');
       (function () {
-        moat.init('applicationId', '');
-      }).should.throw('packageId is missing.');
+        moat.init('urn:moat:applicationId');
+      }).should.throw('Application id is missing.');
       (function () {
-        moat.init('applicationId', './mypackage');
-      }).should.throw('packageId should not be a path.');
+        moat.init('urn:moat:applicationId:');
+      }).should.throw('Package id is missing.');
       (function () {
-        moat.init('applicationId', '/mypackage');
-      }).should.throw('packageId should not be a path.');
+        moat.init('urn:moat:applicationId:mypackage:');
+      }).should.throw('Operation is missing.');
       (function () {
-        moat.init('applicationId', 'mypackage');
+        moat.init('urn:moat:applicationId:mypackage:operation:');
+      }).should.throw('Version is missing.');
+      (function () {
+        moat.init('urn:moat:applicationId:./mypackage:operation:1.0.0');
+      }).should.throw('Package id should not be a path.');
+      (function () {
+        moat.init('urn:moat:applicationId:/mypackage:operation:1.0.0');
+      }).should.throw('Package id should not be a path.');
+      (function () {
+        moat.init('urn:moat:applicationId:mypackage:operation:1.0.0');
       }).should.throw('The require function is missing.');
       (function () {
-        moat.init('applicationId', 'mypackage', {});
+        moat.init('urn:moat:applicationId:mypackage:operation:1.0.0');
+      }).should.throw('The require function is missing.');
+      (function () {
+        moat.init('urn:moat:applicationId:mypackage:operation:1.0.0');
+      }).should.throw('The require function is missing.');
+      (function () {
+        moat.init('urn:moat:applicationId:mypackage:operation:1.0.0', {});
       }).should.throw('The require function is missing.');
     });
 
     it('should not accept a missing packageId.', function() {
       (function () {
-        moat.init('applicationId', 'no-such-a-package!!', require);
+        moat.init('urn:moat:applicationId:no-such-a-package!!:operation:1.0.0', require);
       }).should.throw("Cannot find module 'no-such-a-package!!'");
     });
 
     var mypackage = null;
     it('should load a given moat package.', function() {
-      mypackage = moat.init('applicationId', 'mypackage', require);
+      mypackage = moat.init('urn:moat:applicationId:mypackage:operation:1.0.0', require);
       should.exist(mypackage);
       mypackage.should.have.a.property('applicationId');
       mypackage.should.have.a.property('packageId');
+      mypackage.should.have.a.property('urn');
       mypackage.applicationId.should.equal('applicationId');
       mypackage.packageId.should.equal('mypackage');
+      mypackage.urn.should.equal('urn:moat:applicationId:mypackage:operation:1.0.0');
     });
     it('should cache the already loaded package.', function() {
-      moat.init('applicationId', 'mypackage', require).should.equal(mypackage);
+      moat.init('urn:moat:applicationId:mypackage:operation:1.0.0', require).should.equal(mypackage);
     });
     describe('mypackage(sample app package for testing)', function() {
       it('should have sub packages as properties.', function() {
