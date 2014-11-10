@@ -218,8 +218,9 @@ module.exports = (function() {
    * @class
    * @constructor
    * @param {object} namespace The namespace associated with the client context.
+   * @param {object} bindingContext Optional. An object containing the context information regarding application binding.
    */
-  moat.ClientContext = function(namespace) {
+  moat.ClientContext = function(namespace, bindingContext) {
     assert(namespace, 'The namespace object is mandatory.');
     var applicationId = namespace.applicationId;
     var packageId = namespace.packageId;
@@ -253,6 +254,15 @@ module.exports = (function() {
      * @name packageId
      */
     this.packageId = packageId;
+    /**
+     * 
+     * @readonly
+     * @instance
+     * @memberof moat.ClientContext
+     * @type {object}
+     * @name bindingContext
+     */
+    this.bindingContext = (bindingContext ? bindingContext : null);
     // Instance properties are set via prototype.
     Object.freeze(this);
   };

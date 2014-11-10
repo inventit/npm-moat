@@ -370,12 +370,23 @@ describe('moat.ClientContext(initialized)', function() {
     var obj = new moat.ClientContext(ns);
     obj.should.be.an.instanceOf(moat.Context);
   });
-  it('should have properties named [namespace, applicationId, packageId].', function() {
+  it('should have properties named [namespace, applicationId, packageId, bindingContext] but bindingContext sohuld be null.', function() {
     var ns = {applicationId:'appId', packageId:'pkgId'};
     var obj = new moat.ClientContext(ns);
     obj.should.have.a.property('namespace');
     obj.should.have.a.property('applicationId');
     obj.should.have.a.property('packageId');
+    obj.should.have.a.property('bindingContext');
+    should.not.exist(obj.bindingContext);
+  });
+  it('should have properties named [namespace, applicationId, packageId, bindingContext].', function() {
+    var ns = {applicationId:'appId', packageId:'pkgId'};
+    var obj = new moat.ClientContext(ns, {});
+    obj.should.have.a.property('namespace');
+    obj.should.have.a.property('applicationId');
+    obj.should.have.a.property('packageId');
+    obj.should.have.a.property('bindingContext');
+    should.exist(obj.bindingContext);
   });
   describe('instance', function() {
     it('should be sealed and frozen.', function() {
