@@ -627,6 +627,7 @@ module.exports = (function() {
       return modellClass;
     }
     function buildModelClasses(ns, models) {
+      var modelClassArray = [];
       for (var modelClassName in models) {
         if (models.hasOwnProperty(modelClassName)) {
           console.log('Building [' + modelClassName + ']');
@@ -634,9 +635,17 @@ module.exports = (function() {
           if (modelClass) {
             console.log('  => done!');
             ns[modelClassName] = modelClass;
+            modelClassArray.push(modelClass);
           }
         }
       }
+      ns.array = function() {
+        var ary = [];
+        for (var i = 0; i < modelClassArray.length; i++) {
+          ary[i] = modelClassArray[i];
+        }
+        return ary;
+      };
     }
     function readPackageJson(packageId, resolver) {
       var packageJsonPath = path.resolve(resolver.resolve(packageId), '../package.json');

@@ -526,6 +526,22 @@ describe('moat(initialized)', function() {
           Object.isSealed(models.FirstLargeObject).should.equal(true);
           Object.isFrozen(models.FirstLargeObject).should.equal(false);
         });
+        describe('.array', function() {
+          it('should be a function.', function() {
+            var array = models.array;
+            should.exist(array);
+            array.should.be.a('function');
+          });
+          it('should return an array of model classes', function() {
+            should.exist(models.array);
+            var modelClasses = models.array();
+            should.exist(modelClasses);
+            modelClasses.should.be.an('array');
+            modelClasses.length.should.equal(2);
+            modelClasses[0].should.equal(models.FirstLargeObject);
+            modelClasses[1].should.equal(models.SecondLargeObject);
+          });
+        });
         describe('.FirstLargeObject', function() {
           it('should have mapper functions as class methods.', function() {
             var FirstLargeObject = models.FirstLargeObject;
