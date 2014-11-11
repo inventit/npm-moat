@@ -668,11 +668,36 @@ module.exports = (function() {
     assert(packageJson.models, 'The package[' + packageId + '] does not seem to be a MOAT js app since model descriptoers are missing in the package.json.');
     moat.persistence(DEFAULT_PERSISTENCE);
     ns = {
-      models: {},
+      /**
+       * The sub namespace for model classes.
+       */
+      models: {
+        /**
+         * Returns an array of defined model classes.
+         */
+        array: function() {
+          // see buildModelClasses() function.
+        }
+      },
+      /**
+       * The sub namespace for server side classes.
+       */
       server: {},
+      /**
+       * The sub namespace for client side classes.
+       */
       client: {},
+      /**
+       * URN for this application.
+       */
       urn: urn,
+      /**
+       * Application ID of this application.
+       */
       applicationId: applicationId,
+      /**
+       * Package ID of this application.
+       */
       packageId: packageId
     };
     ns.m = ns.models;
