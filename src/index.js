@@ -626,10 +626,20 @@ module.exports = (function() {
       configure(modellClass, DEFAULT_PERSISTENCE, true);
       return modellClass;
     }
+    function validateModelName(name) {
+      if (!name) {
+        throw ERR('Missing model name.');
+      }
+      var first = name.charAt(0);
+      if (first < 'A' || first > 'Z') {
+        throw ERR('Model name must be CamelCase.');
+      }
+    }
     function buildModelClasses(ns, models) {
       var modelClassArray = [];
       for (var modelClassName in models) {
         if (models.hasOwnProperty(modelClassName)) {
+          validateModelName(modelClassName);
           console.log('Building [' + modelClassName + ']');
           var modelClass = buildModelClass(modelClassName, models[modelClassName]);
           if (modelClass) {
