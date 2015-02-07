@@ -20,7 +20,7 @@ var uuid = (function() {
  * @type {number}
  * @private
  */
-    maxSize = 1000;
+maxSize = 1000;
 
 /**
  * A builder function to create an object containing asynchronous mapper functions.
