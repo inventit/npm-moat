@@ -57,6 +57,9 @@ describe('moat.ServerContext(not initialized)', function() {
     obj.should.have.a.property('namespace');
     obj.should.have.a.property('applicationId');
     obj.should.have.a.property('packageId');
+    obj.should.have.a.property('ns');
+    obj.should.have.a.property('appId');
+    obj.should.have.a.property('pkgId');
     obj.should.have.a.property('dmjob');
     obj.should.have.a.property('device');
     obj.should.have.a.property('modelObjects');
@@ -80,7 +83,12 @@ describe('moat.ServerContext(not initialized)', function() {
     });
     it('should not be executed as a function as it is a constructor.', function() {
       (function () {
-        moat.ServerContext({applicationId:'appId', packageId:'pkgId'});
+        moat.ServerContext({applicationId:'appId', pkgId:'pkgId'});
+      }).should.throw('This is not a function.');
+    });
+    it('should not be executed as a function as it is a constructor.', function() {
+      (function () {
+        moat.ServerContext({appId:'appId', packageId:'pkgId'});
       }).should.throw('This is not a function.');
     });
   });
@@ -127,6 +135,9 @@ describe('moat.ClientContext(not initialized)', function() {
     obj.should.have.a.property('namespace');
     obj.should.have.a.property('applicationId');
     obj.should.have.a.property('packageId');
+    obj.should.have.a.property('ns');
+    obj.should.have.a.property('appId');
+    obj.should.have.a.property('pkgId');
   });
   describe('constructor', function() {
     it('should require a namespace object.', function() {
@@ -146,7 +157,12 @@ describe('moat.ClientContext(not initialized)', function() {
     });
     it('should not be executed as a function as it is a constructor.', function() {
       (function () {
-        moat.ClientContext({applicationId:'appId', packageId:'pkgId'});
+        moat.ClientContext({applicationId:'appId', pkgId:'pkgId'});
+      }).should.throw('This is not a function.');
+    });
+    it('should not be executed as a function as it is a constructor.', function() {
+      (function () {
+        moat.ClientContext({appId:'appId', packageId:'pkgId'});
       }).should.throw('This is not a function.');
     });
   });

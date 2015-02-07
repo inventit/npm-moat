@@ -115,8 +115,8 @@ module.exports = (function() {
    */
   moat.ServerContext = function(namespace) {
     assert(namespace, 'The namespace object is mandatory.');
-    var applicationId = namespace.applicationId;
-    var packageId = namespace.packageId;
+    var applicationId = namespace.applicationId || namespace.appId;
+    var packageId = namespace.packageId || namespace.pkgId;
     assert(applicationId, 'The applicationId is mandatory.');
     assert(packageId, 'The packageId is mandatory.');
     assertType(this, moat.ServerContext);
@@ -147,6 +147,33 @@ module.exports = (function() {
      * @name packageId
      */
     this.packageId = packageId;
+    /**
+     * Short name for namespace
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name namespace
+     */
+    this.ns = namespace;
+    /**
+     * Short name for applicationId
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name appId
+     */
+    this.appId = applicationId;
+    /**
+     * Short name for packageId
+     * @readonly
+     * @instance
+     * @memberof moat.ServerContext
+     * @type {object}
+     * @name pkgId
+     */
+    this.pkgId = packageId;
     // Instance properties are set via prototype.
     Object.freeze(this);
   };
@@ -222,8 +249,8 @@ module.exports = (function() {
    */
   moat.ClientContext = function(namespace, bindingContext) {
     assert(namespace, 'The namespace object is mandatory.');
-    var applicationId = namespace.applicationId;
-    var packageId = namespace.packageId;
+    var applicationId = namespace.applicationId || namespace.appId;
+    var packageId = namespace.packageId || namespace.pkgId;
     assert(applicationId, 'The applicationId is mandatory.');
     assert(packageId, 'The packageId is mandatory.');
     assertType(this, moat.ClientContext);
@@ -254,6 +281,33 @@ module.exports = (function() {
      * @name packageId
      */
     this.packageId = packageId;
+    /**
+     * Short name for namespace
+     * @readonly
+     * @instance
+     * @memberof moat.ClientContext
+     * @type {object}
+     * @name namespace
+     */
+    this.ns = namespace;
+    /**
+     * Short name for applicationId
+     * @readonly
+     * @instance
+     * @memberof moat.ClientContext
+     * @type {object}
+     * @name applicationId
+     */
+    this.appId = applicationId;
+    /**
+     * Short name for packageId
+     * @readonly
+     * @instance
+     * @memberof moat.ClientContext
+     * @type {object}
+     * @name packageId
+     */
+    this.pkgId = packageId;
     /**
      * 
      * @readonly
