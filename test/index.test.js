@@ -14,9 +14,9 @@ describe('moat', function() {
   it('should be frozen so that users cannot modify it.', function() {
     moat.someprop = 'me';
     should.not.exist(moat.someprop);
-    should.exist(moat.spi);
-    delete moat.spi;
-    should.exist(moat.spi);
+    should.exist(moat.engine);
+    delete moat.engine;
+    should.exist(moat.engine);
   });
 });
 
@@ -93,16 +93,16 @@ describe('moat.ServerContext(not initialized)', function() {
     });
   });
   describe('#httpSync', function() {
-    it('should fail prior to moat.spi.Config#done() being invoked.', function() {
+    it('should fail prior to moat.engine.Config#done() being invoked.', function() {
       (function () {
         new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).httpSync();
       }).should.throw('Not yet configured.');
     });
   });
-  describe('#findPackage', function() {
-    it('should fail prior to moat.spi.Config#done() being invoked.', function() {
+  describe('#getPackageResource', function() {
+    it('should fail prior to moat.engine.Config#done() being invoked.', function() {
       (function () {
-        new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).findPackage();
+        new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).getPackageResource();
       }).should.throw('Not yet configured.');
     });
   });
@@ -187,7 +187,7 @@ describe('moat.Runtime(not initialized)', function() {
     });
   });
   describe('#singleton', function() {
-    it('should throw an exception unless moat.spi.Config#done() is invoked.', function() {
+    it('should throw an exception unless moat.engine.Config#done() is invoked.', function() {
       (function () {
         moat.Runtime.singleton();
       }).should.throw('Not yet configured.');
@@ -195,45 +195,45 @@ describe('moat.Runtime(not initialized)', function() {
   });
 });
 
-describe('moat.spi', function() {
+describe('moat.engine', function() {
   it('should be an object rather than a function.', function() {
-    moat.spi.should.be.an('object');
+    moat.engine.should.be.an('object');
   });
   it('should be frozen so that users cannot modify it.', function() {
-    moat.spi.someprop = 'me';
-    should.not.exist(moat.spi.someprop);
-    should.exist(moat.spi.Config);
-    delete moat.spi.Config;
-    should.exist(moat.spi.Config);
+    moat.engine.someprop = 'me';
+    should.not.exist(moat.engine.someprop);
+    should.exist(moat.engine.Config);
+    delete moat.engine.Config;
+    should.exist(moat.engine.Config);
   });
 });
 
-describe('moat.spi.Config', function() {
+describe('moat.engine.Config', function() {
   describe('constructor', function() {
     it('should not be executed as a function as it is a constructor.', function() {
       (function () {
-        moat.spi.Config();
+        moat.engine.Config();
       }).should.throw('This is not a function.');
     });
     it('should have an object property named "runtime".', function() {
-      var config = new moat.spi.Config();
+      var config = new moat.engine.Config();
       should.exist(config.runtime);
     });
     it('should be sealed and frozen.', function() {
-      Object.isSealed(moat.spi.Config).should.equal(true);
-      Object.isFrozen(moat.spi.Config).should.equal(true);
+      Object.isSealed(moat.engine.Config).should.equal(true);
+      Object.isFrozen(moat.engine.Config).should.equal(true);
     });
   });
   describe('instance', function() {
     it('should be sealed and frozen.', function() {
-      var obj = new moat.spi.Config();
+      var obj = new moat.engine.Config();
       Object.isSealed(obj).should.equal(true);
       Object.isFrozen(obj).should.equal(true);
     });
   });
   describe('#runtime', function() {
     it('should be sealed so that users cannot add/remove but edit properties.', function() {
-      var config = new moat.spi.Config();
+      var config = new moat.engine.Config();
       config.runtime.foo = 'yay!';
       should.not.exist(config.runtime.foo);
       config.runtime.version = 'yay!';
@@ -246,22 +246,22 @@ describe('moat.spi.Config', function() {
   });
   describe('#serverContextProto', function() {
     it('should be sealed so that users cannot add/remove but edit properties.', function() {
-      var config = new moat.spi.Config();
+      var config = new moat.engine.Config();
       config.runtime.foo = 'yay!';
       should.not.exist(config.runtime.foo);
       config.serverContextProto.httpSync = function(options) {
         return 'OK! I was overwritten.';
       };
       config.serverContextProto.httpSync().should.equal('OK! I was overwritten.');
-      config.serverContextProto.findPackage = function(object) {
+      config.serverContextProto.getPackageResource = function(object) {
         return 'OK! I was overwritten.';
       };
-      config.serverContextProto.findPackage().should.equal('OK! I was overwritten.');
+      config.serverContextProto.getPackageResource().should.equal('OK! I was overwritten.');
     });
   });
   describe('#serviceBuilders', function() {
     it('should be sealed so that users cannot add/remove but edit properties.', function() {
-      var config = new moat.spi.Config();
+      var config = new moat.engine.Config();
       config.serviceBuilders.foo = 'yay!';
       should.not.exist(config.serviceBuilders.foo);
       config.serviceBuilders.client = function(options) {
@@ -276,14 +276,14 @@ describe('moat.spi.Config', function() {
   });
   describe('#done', function() {
     it('should return true when it is terminated without errors.', function() {
-      var config = new moat.spi.Config();
+      var config = new moat.engine.Config();
       config.runtime.server = false;
       config.runtime.version = '1.0.0';
       config.runtime.engine = 'servicesync';
       config.serverContextProto.httpSync = function(options) {
         return 'OK! I was overwritten.';
       };
-      config.serverContextProto.findPackage = function(object) {
+      config.serverContextProto.getPackageResource = function(object) {
         return 'OK! I was overwritten.';
       };
       config.serviceBuilders.server = function(packageId, ns, main) {};
@@ -293,7 +293,7 @@ describe('moat.spi.Config', function() {
       Object.isFrozen(config.runtime).should.equal(true);
     });
     it('should return false if "moat.Runtime.prototype" is frozen.', function() {
-      var config = new moat.spi.Config();
+      var config = new moat.engine.Config();
       config.done().should.equal(false);
     });
   });
@@ -365,13 +365,13 @@ describe('moat.ServerContext(initialized)', function() {
     });
   });
   describe('#httpSync', function() {
-    it('should be overwritten after moat.spi.Config#done() being invoked.', function() {
+    it('should be overwritten after moat.engine.Config#done() being invoked.', function() {
       new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).httpSync().should.equal('OK! I was overwritten.');
     });
   });
-  describe('#findPackage', function() {
-    it('should be overwritten after moat.spi.Config#done() being invoked.', function() {
-      new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).findPackage().should.equal('OK! I was overwritten.');
+  describe('#getPackageResource', function() {
+    it('should be overwritten after moat.engine.Config#done() being invoked.', function() {
+      new moat.ServerContext({applicationId:'appId', packageId:'pkgId'}).getPackageResource().should.equal('OK! I was overwritten.');
     });
   });
 });
@@ -434,7 +434,7 @@ describe('moat.ClientContext(initialized)', function() {
 });
 
 describe('moat.Runtime(initialized)', function() {
-  it('should be frozen after moat.spi.Config#done() being invoked.', function() {
+  it('should be frozen after moat.engine.Config#done() being invoked.', function() {
     Object.isSealed(moat.Runtime).should.equal(true);
     Object.isFrozen(moat.Runtime).should.equal(true);
   });
@@ -453,7 +453,7 @@ describe('moat.Runtime(initialized)', function() {
     });
   });
   describe('.singleton', function() {
-    it('should return a Runtime singleton instance after moat.spi.Config#done() is invoked.', function() {
+    it('should return a Runtime singleton instance after moat.engine.Config#done() is invoked.', function() {
       moat.Runtime.singleton().should.be.a('object');
       moat.Runtime.singleton().should.be.an.instanceOf(moat.Runtime);
     });

@@ -230,10 +230,10 @@ module.exports = (function() {
    * @memberof moat.ServerContext
    * @abstract
    * @function
-   * @name findPackage
+   * @name getPackageResource
    * @param {string} packageId The package ID to be identified.
    */
-  serverContext.findPackage = notConf;
+  serverContext.getPackageResource = notConf;
   Object.seal(serverContext);
   moat.ServerContext.prototype = serverContext;
   Object.freeze(moat.ServerContext);
@@ -888,20 +888,20 @@ module.exports = (function() {
   moat.c = moat.configure;
 
   /**
-   * This namespace is for objects providing Service Provider Interfaces.
+   * This namespace is for objects providing Runtime Environment Plugin Interface.
    * User applications don't have to use them.
    * @namespace
    */
-  moat.spi = {};
-  var spi = moat.spi;
+  moat.engine = {};
+  var engine = moat.engine;
 
   /**
    * This class represents the configuration information regarding the underlying moat API and runtime environment.
    * Users don't have to use this class directly but the runtime environment does.
    * @class
    */
-  moat.spi.Config = function() {
-    assertType(this, moat.spi.Config);
+  moat.engine.Config = function() {
+    assertType(this, moat.engine.Config);
     var self = this;
     var Runtime = moat.Runtime;
     var runtimeProto = Runtime.prototype;
@@ -909,7 +909,7 @@ module.exports = (function() {
      * 
      * @readonly
      * @instance
-     * @memberof moat.spi.Config
+     * @memberof moat.engine.Config
      * @type {moat.Runtime}
      * @name runtime
      */
@@ -919,7 +919,7 @@ module.exports = (function() {
      * 
      * @readonly
      * @instance
-     * @memberof moat.spi.Config
+     * @memberof moat.engine.Config
      * @type {moat.Context}
      * @name serverContextProto
      */
@@ -930,7 +930,7 @@ module.exports = (function() {
      * 
      * @readonly
      * @instance
-     * @memberof moat.spi.Config
+     * @memberof moat.engine.Config
      * @type {object}
      * @name serviceBuilders
      */
@@ -962,7 +962,7 @@ module.exports = (function() {
     /**
      * 
      * @instance
-     * @memberof moat.spi.Config
+     * @memberof moat.engine.Config
      * @function
      * @name done
      * @returns {boolean} false when the configuration is already performed.
@@ -980,8 +980,8 @@ module.exports = (function() {
     };
     Object.freeze(self);
   };
-  Object.freeze(spi.Config);
-  Object.freeze(spi);
+  Object.freeze(engine.Config);
+  Object.freeze(engine);
   Object.freeze(moat);
   return moat;
 })();
