@@ -6,7 +6,7 @@ var path = require('path'),
     assert = require('assert'),
     DEFAULT_PERSISTENCE = 'hash';
 
-function ERR(m) {
+function err(m) {
   console.log('[ERROR] ' + m);
   return m;
 }
@@ -14,7 +14,7 @@ function assertType(obj, type) {
   assert(obj instanceof type, 'This is not a function.');
 }
 function notConf() {
-  throw ERR('Not yet configured.');
+  throw err('Not yet configured.');
 }
 
 /**
@@ -628,11 +628,11 @@ module.exports = (function() {
     }
     function validateModelName(name) {
       if (!name) {
-        throw ERR('Missing model name.');
+        throw err('Missing model name.');
       }
       var first = name.charAt(0);
       if (first < 'A' || first > 'Z') {
-        throw ERR('Model name must be CamelCase.');
+        throw err('Model name must be CamelCase.');
       }
     }
     function buildModelClasses(ns, models) {
@@ -750,7 +750,7 @@ module.exports = (function() {
       try {
         module = require(path.resolve(__dirname, 'persistence-' + library + '.js'));
       } catch (e) {
-        throw ERR(library + ' is unsupported.');
+        throw err(library + ' is unsupported.');
       }
       assert(typeof module === 'function', 'Invalid persistence module. Fucntion is expecte.');
       pmStore[library] = module;
@@ -915,7 +915,7 @@ module.exports = (function() {
      */
     self.done = function() {
       if (Object.isFrozen(runtimeProto)) {
-        ERR('Sorry, already configured.');
+        err('Sorry, already configured.');
         return false;
       }
       moatRuntime = new Runtime();
